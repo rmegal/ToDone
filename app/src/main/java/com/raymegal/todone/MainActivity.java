@@ -1,5 +1,6 @@
 package com.raymegal.todone;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -13,6 +14,8 @@ import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.appindexing.Thing;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import org.apache.commons.io.FileUtils;
 
@@ -20,10 +23,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import static org.apache.commons.io.FileUtils.readFileToString;
+
 public class MainActivity extends AppCompatActivity {
     private ArrayList<String> items;
     private ArrayAdapter<String> itemsAdapter;
     private ListView lvItems;
+    private final int EDIT_ITEM = 77;
+
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
      * See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -53,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
                 android.R.layout.simple_list_item_1, items);
         lvItems.setAdapter(itemsAdapter);
 
-        setupListViewListener();
+        setupListViewListeners();
 
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -61,6 +68,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /*
+     * Editing items from list
+     * 1. Create method for setting up the listener (this method)
+     * 2. Invoke listener (i.e. this method) from onCreate
+     * 3. Attach a ClickListener to each Item for List View that:
+     *   a. Edits the item
+     *
      * Removing items from list
      * 1. Create method for setting up the listener (this method)
      * 2. Invoke listener (i.e. this method) from onCreate
@@ -68,7 +81,22 @@ public class MainActivity extends AppCompatActivity {
      *   a. Removes that item
      *   b. Refreshes the adapter
      */
-    private void setupListViewListener() {
+    private void setupListViewListeners() {
+        // Set up item click listener to launch EditItemActivity
+        lvItems.setOnItemClickListener(
+                new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> adapter,
+                                               View item, int pos, long id) {
+                        Intent i = new Intent(MainActivity.this, EditItemActivity.class);
+                        ToDoneItem curItem = new ToDoneItem(pos, itemsAdapter.getItem(pos).toString());
+                        i.putExtra("item", curItem);
+                        startActivityForResult(i, EDIT_ITEM);
+                    }
+                }
+        );
+
+        // Set up item *long* click listener to remove current item
         lvItems.setOnItemLongClickListener(
                 new AdapterView.OnItemLongClickListener() {
                     @Override
@@ -81,6 +109,16 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
         );
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK && requestCode == EDIT_ITEM) {
+            ToDoneItem changedItem = (ToDoneItem) data.getExtras().getSerializable("item");
+            items.set(changedItem.pos, changedItem.text);
+            itemsAdapter.notifyDataSetChanged();
+            writeItems();
+        }
     }
 
     public void onAddItem(View view) {
@@ -129,9 +167,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void readItems() {
         File filesDir = getFilesDir();
-        File todoFile = new File(filesDir, "todo.txt");
+        File todoneFile = new File(filesDir, "todone.txt");
+
         try {
-            items = new ArrayList<String>(FileUtils.readLines(todoFile));
+            String jsonString = readFileToString(todoneFile);
+            items = (ArrayList<String>) new Gson().fromJson(jsonString, new TypeToken<ArrayList<String>>() {}.getType());
         } catch (IOException e) {
             items = new ArrayList<String>();
         }
@@ -139,9 +179,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void writeItems() {
         File filesDir = getFilesDir();
-        File todoFile = new File(filesDir, "todo.txt");
+        File todoneFile = new File(filesDir, "todone.txt");
+
         try {
-            FileUtils.writeLines(todoFile, items);
+            FileUtils.writeStringToFile(todoneFile, new Gson().toJson(items));
         } catch (IOException e) {
             e.printStackTrace();
         }
