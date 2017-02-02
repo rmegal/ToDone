@@ -16,7 +16,7 @@ The following **required** functionality is completed:
 
 The following **optional** features are implemented:
 
-* [ ] Persist the todo items [into SQLite](http://guides.codepath.com/android/Persisting-Data-to-the-Device#sqlite) instead of a text file
+* [X] Persist the todo items [into SQLite](http://guides.codepath.com/android/Persisting-Data-to-the-Device#sqlite) instead of a text file
 * [ ] Improve style of the todo items in the list [using a custom adapter](http://guides.codepath.com/android/Using-an-ArrayAdapter-with-ListView)
 * [ ] Add support for completion due dates for todo items (and display within listview item)
 * [ ] Use a [DialogFragment](http://guides.codepath.com/android/Using-DialogFragment) instead of new Activity for editing items
@@ -40,6 +40,9 @@ GIF created with [LiceCap](http://www.cockos.com/licecap/).
 * Storing multi-line items in a TXT file was troublesome since loading a multi-line task would result in multiple tasks being created in the ListView. I changed to storing a serialized version of the underlying ArrayList as JSON to resolve this.
 * I'm working in a Windows 10 environment with Hyper-V enabled so I followed this to dual-boot into an environment that allowed me to use the Genymotion emulator: http://www.hanselman.com/blog/SwitchEasilyBetweenVirtualBoxAndHyperVWithABCDEditBootEntryInWindows81.aspx
 * The [ideavim](https://github.com/JetBrains/ideavim) plugin allowed me to use vim keybindings within Android Studio. Very handy.
+
+## Updates
+* 20170201: Now storing data in database using DBFlow/SQLite. The look/feel/functionality is identical.
 
 ## License
 

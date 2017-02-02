@@ -14,16 +14,11 @@ import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.appindexing.Thing;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import com.raizlabs.android.dbflow.sql.language.Delete;
+import com.raizlabs.android.dbflow.sql.language.SQLite;
 
-import org.apache.commons.io.FileUtils;
-
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
-
-import static org.apache.commons.io.FileUtils.readFileToString;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private ArrayList<String> items;
@@ -71,13 +66,13 @@ public class MainActivity extends AppCompatActivity {
      * Editing items from list
      * 1. Create method for setting up the listener (this method)
      * 2. Invoke listener (i.e. this method) from onCreate
-     * 3. Attach a ClickListener to each Item for List View that:
+     * 3. Attach a ClickListener to each ToDoneItem2 for List View that:
      *   a. Edits the item
      *
      * Removing items from list
      * 1. Create method for setting up the listener (this method)
      * 2. Invoke listener (i.e. this method) from onCreate
-     * 3. Attach a LongClickListener to each Item for List View that:
+     * 3. Attach a LongClickListener to each ToDoneItem2 for List View that:
      *   a. Removes that item
      *   b. Refreshes the adapter
      */
@@ -166,25 +161,27 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void readItems() {
-        File filesDir = getFilesDir();
-        File todoneFile = new File(filesDir, "todone.txt");
+        List<ToDoneItem2> dbItems = SQLite.select()
+                .from(ToDoneItem2.class)
+                .queryList();
 
-        try {
-            String jsonString = readFileToString(todoneFile);
-            items = (ArrayList<String>) new Gson().fromJson(jsonString, new TypeToken<ArrayList<String>>() {}.getType());
-        } catch (IOException e) {
-            items = new ArrayList<String>();
+        items = new ArrayList<>();
+        for (ToDoneItem2 dbItem : dbItems ) {
+            items.add(dbItem.text);
         }
     }
 
     private void writeItems() {
-        File filesDir = getFilesDir();
-        File todoneFile = new File(filesDir, "todone.txt");
+        // empty table
+        Delete.table(ToDoneItem2.class);
 
-        try {
-            FileUtils.writeStringToFile(todoneFile, new Gson().toJson(items));
-        } catch (IOException e) {
-            e.printStackTrace();
+        for (String item : items) {
+            createItem(item);
         }
+    }
+
+    private void createItem(String text) {
+        ToDoneItem2 item = new ToDoneItem2(text);
+        item.save();
     }
 }
