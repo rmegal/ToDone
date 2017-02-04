@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 
@@ -21,8 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    private ArrayList<String> items;
-    private ArrayAdapter<String> itemsAdapter;
+    private ArrayList<ToDoneTask> items;
+    private ToDoneTasksAdapter itemsAdapter;
     private ListView lvItems;
     private final int EDIT_ITEM = 77;
 
@@ -49,10 +48,11 @@ public class MainActivity extends AppCompatActivity {
          * See: https://docs.google.com/presentation/d/15JnmfmFa0hJOEkBhG_TeymChLzDzpOTJvBlOj29A9fY/edit#slide=id.gf45d6347_3_119
          *
          */
-        lvItems = (ListView) findViewById(R.id.lvItems);
+        lvItems = (ListView) findViewById(R.id.lvTasks);
         readItems();
-        itemsAdapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_list_item_1, items);
+        // itemsAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, items);
+        itemsAdapter = new ToDoneTasksAdapter(this, items);
+        lvItems = (ListView) findViewById(R.id.lvTasks);
         lvItems.setAdapter(itemsAdapter);
 
         setupListViewListeners();
@@ -66,32 +66,32 @@ public class MainActivity extends AppCompatActivity {
      * Editing items from list
      * 1. Create method for setting up the listener (this method)
      * 2. Invoke listener (i.e. this method) from onCreate
-     * 3. Attach a ClickListener to each ToDoneItem2 for List View that:
-     *   a. Edits the item
+     * 3. Attach a ClickListener to each ToDoneTask for List View that:
+     *   a. Edits the task
      *
      * Removing items from list
      * 1. Create method for setting up the listener (this method)
      * 2. Invoke listener (i.e. this method) from onCreate
-     * 3. Attach a LongClickListener to each ToDoneItem2 for List View that:
-     *   a. Removes that item
+     * 3. Attach a LongClickListener to each ToDoneTask for List View that:
+     *   a. Removes that task
      *   b. Refreshes the adapter
      */
     private void setupListViewListeners() {
-        // Set up item click listener to launch EditItemActivity
+        // Set up task click listener to launch EditItemActivity
         lvItems.setOnItemClickListener(
                 new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> adapter,
                                                View item, int pos, long id) {
                         Intent i = new Intent(MainActivity.this, EditItemActivity.class);
-                        ToDoneItem curItem = new ToDoneItem(pos, itemsAdapter.getItem(pos).toString());
-                        i.putExtra("item", curItem);
+                        ToDoneExtra curItem = new ToDoneExtra(pos, itemsAdapter.getItem(pos));
+                        i.putExtra("task", curItem);
                         startActivityForResult(i, EDIT_ITEM);
                     }
                 }
         );
 
-        // Set up item *long* click listener to remove current item
+        // Set up task *long* click listener to remove current task
         lvItems.setOnItemLongClickListener(
                 new AdapterView.OnItemLongClickListener() {
                     @Override
@@ -109,17 +109,19 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK && requestCode == EDIT_ITEM) {
-            ToDoneItem changedItem = (ToDoneItem) data.getExtras().getSerializable("item");
-            items.set(changedItem.pos, changedItem.text);
+            ToDoneExtra changedItem = (ToDoneExtra) data.getExtras().getSerializable("task");
+            items.set(changedItem.pos, changedItem.task);
             itemsAdapter.notifyDataSetChanged();
             writeItems();
         }
     }
 
-    public void onAddItem(View view) {
-        EditText etNewItem = (EditText) findViewById(R.id.etNewItem);
+    public void onAddTask(View view) {
+        EditText etNewItem = (EditText) findViewById(R.id.etNewTask);
         String itemText = etNewItem.getText().toString();
-        itemsAdapter.add(itemText);
+        ToDoneTask newItem = new ToDoneTask(itemText);
+        newItem.priority = getString(R.string.priority_low) ;
+        itemsAdapter.add(newItem);
         etNewItem.setText("");
         writeItems();
     }
@@ -161,27 +163,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void readItems() {
-        List<ToDoneItem2> dbItems = SQLite.select()
-                .from(ToDoneItem2.class)
+        List<ToDoneTask> dbItems = SQLite.select()
+                .from(ToDoneTask.class)
                 .queryList();
 
         items = new ArrayList<>();
-        for (ToDoneItem2 dbItem : dbItems ) {
-            items.add(dbItem.text);
+        for (ToDoneTask dbItem : dbItems ) {
+            items.add(dbItem);
         }
     }
 
     private void writeItems() {
         // empty table
-        Delete.table(ToDoneItem2.class);
+        Delete.table(ToDoneTask.class);
 
-        for (String item : items) {
-            createItem(item);
+        for (ToDoneTask item : items) {
+            item.save();
         }
-    }
-
-    private void createItem(String text) {
-        ToDoneItem2 item = new ToDoneItem2(text);
-        item.save();
     }
 }

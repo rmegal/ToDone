@@ -8,7 +8,7 @@ import android.widget.EditText;
 
 public class EditItemActivity extends AppCompatActivity {
     private EditText mltEdit;
-    private ToDoneItem curItem;
+    private ToDoneExtra curItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -17,29 +17,29 @@ public class EditItemActivity extends AppCompatActivity {
 
         mltEdit = (EditText) findViewById(R.id.mltEdit);
 
-        // Get text from intent and set multi-line edit
-        curItem = (ToDoneItem) getIntent().getSerializableExtra("item");
+        // Get name from intent and set multi-line edit
+        curItem = (ToDoneExtra) getIntent().getSerializableExtra("task");
         /*
-         * Using append sets the text and leaves the cursor at the end
+         * Using append sets the name and leaves the cursor at the end
          *
-         * Using setText/setSelection does the same thing.
+         * Using setName/setSelection does the same thing.
          *
          * Regardless, I now have to hit the Back button twice to cancel the edit.
-         * I thought that I only had to hit the Back button once when just using setText,
+         * I thought that I only had to hit the Back button once when just using setName,
          * but I just tested that and I still had to hit the Back button twice.
          *
          * TODO: Why do I have to hit the Back button twice?
          */
-        mltEdit.append(curItem.text);
-        // mltEdit.setText(curItem.text);
-        // mltEdit.setSelection(curItem.text.length());
+        mltEdit.append(curItem.task.name);
+        // mltEdit.setName(curItem.name);
+        // mltEdit.setSelection(curItem.name.length());
     }
 
     public void onClick(View view) {
-        // Prepare data intent and pass back text
-        curItem.text = mltEdit.getText().toString();
+        // Prepare data intent and pass back name
+        curItem.task.name = mltEdit.getText().toString();
         Intent data = new Intent();
-        data.putExtra("item", curItem);
+        data.putExtra("task", curItem);
         setResult(RESULT_OK, data);
         finish();
     }

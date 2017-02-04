@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">ToDone</string>
-    <string name="add_item">Add Item</string>
-    <string name="add_new_item">Add new item</string>
+    <string name="add_new_task">Add new task</string>
     <string name="save_label">Save</string>
+    <string name="priority_low">LOW</string>
+    <string name="add_task">Add Task</string>
 </resources>

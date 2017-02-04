@@ -5,27 +5,33 @@ import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 
+import java.io.Serializable;
+
 /**
  * Created by ray on 1/31/2017.
  */
 
 @Table(database = ToDoneDataBase.class)
-public class ToDoneItem2 extends BaseModel {
+public class ToDoneTask extends BaseModel implements Serializable {
     @Column
     @PrimaryKey (autoincrement = true)
     int id;
 
     @Column
-    String text;
+    String name;
 
-    public ToDoneItem2() {
+    @Column
+    String priority;
+
+    public ToDoneTask() {
     }
 
-    public ToDoneItem2(String text) {
-        this.text = text;
+    public ToDoneTask(String name) {
+        this.name = name;
     }
 
-    public void setText(String text) {
-        this.text = text;
+    public void setName(String name) {
+        this.name = name;
     }
+    public void setPriority(String priority) { this.priority = priority; }
 }
