@@ -4,9 +4,11 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.EditText;
 import android.widget.ListView;
 
 import com.google.android.gms.appindexing.Action;
@@ -23,7 +25,6 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<ToDoneTask> items;
     private ToDoneTasksAdapter itemsAdapter;
     private ListView lvItems;
-    private final int EDIT_ITEM = 77;
 
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -35,6 +36,17 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Find the toolbar view inside the activity layout
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        // Sets the Toolbar to act as the ActionBar for this Activity window.
+        // Make sure the toolbar exists in the activity and is not null
+        setSupportActionBar(toolbar);
+
+        // Display icon in the toolbar
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setLogo(R.mipmap.ic_launcher);
+        getSupportActionBar().setDisplayUseLogoEnabled(true);
 
         /*
          * 1. Create an ArrayList
@@ -62,6 +74,14 @@ public class MainActivity extends AppCompatActivity {
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
+    // Menu icons are inflated just as they were with actionbar
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
     /*
      * Editing items from list
      * 1. Create method for setting up the listener (this method)
@@ -82,11 +102,12 @@ public class MainActivity extends AppCompatActivity {
                 new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> adapter,
-                                               View item, int pos, long id) {
+                                            View item, int pos, long id) {
                         Intent i = new Intent(MainActivity.this, EditItemActivity.class);
                         ToDoneExtra curItem = new ToDoneExtra(pos, itemsAdapter.getItem(pos));
                         i.putExtra("task", curItem);
-                        startActivityForResult(i, EDIT_ITEM);
+                        i.putExtra("requestcode", EditAction.EDIT_ACTION);
+                        startActivityForResult(i, EditAction.EDIT_ACTION.getValue());
                     }
                 }
         );
@@ -108,22 +129,26 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == RESULT_OK && requestCode == EDIT_ITEM) {
+        if (resultCode == RESULT_OK && requestCode == EditAction.EDIT_ACTION.getValue()) {
+            EditAction editAction = (EditAction) data.getExtras().getSerializable("requestcode");
+
+            if (editAction == EditAction.DELETE_ACTION) {
+                ToDoneExtra changedItem = (ToDoneExtra) data.getExtras().getSerializable("task");
+                items.remove(changedItem.pos);
+                itemsAdapter.notifyDataSetChanged();
+                writeItems();
+            } else {
+                ToDoneExtra changedItem = (ToDoneExtra) data.getExtras().getSerializable("task");
+                items.set(changedItem.pos, changedItem.task);
+                itemsAdapter.notifyDataSetChanged();
+                writeItems();
+            }
+        } else if (resultCode == RESULT_OK && requestCode == EditAction.ADD_ACTION.getValue()) {
             ToDoneExtra changedItem = (ToDoneExtra) data.getExtras().getSerializable("task");
-            items.set(changedItem.pos, changedItem.task);
+            items.add(changedItem.task);
             itemsAdapter.notifyDataSetChanged();
             writeItems();
         }
-    }
-
-    public void onAddTask(View view) {
-        EditText etNewItem = (EditText) findViewById(R.id.etNewTask);
-        String itemText = etNewItem.getText().toString();
-        ToDoneTask newItem = new ToDoneTask(itemText);
-        newItem.priority = getString(R.string.priority_low) ;
-        itemsAdapter.add(newItem);
-        etNewItem.setText("");
-        writeItems();
     }
 
     /**
@@ -168,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
                 .queryList();
 
         items = new ArrayList<>();
-        for (ToDoneTask dbItem : dbItems ) {
+        for (ToDoneTask dbItem : dbItems) {
             items.add(dbItem);
         }
     }
@@ -180,5 +205,13 @@ public class MainActivity extends AppCompatActivity {
         for (ToDoneTask item : items) {
             item.save();
         }
+    }
+
+    public void onMenuAdd(MenuItem item) {
+        Intent i = new Intent(MainActivity.this, EditItemActivity.class);
+        ToDoneExtra curItem = new ToDoneExtra(0, new ToDoneTask(""));
+        i.putExtra("task", curItem);
+        i.putExtra("requestcode", EditAction.ADD_ACTION);
+        startActivityForResult(i, EditAction.ADD_ACTION.getValue());
     }
 }
