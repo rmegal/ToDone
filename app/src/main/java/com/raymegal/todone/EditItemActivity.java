@@ -6,13 +6,20 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
+import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.Spinner;
+
+import java.util.Date;
 
 import static com.raymegal.todone.R.menu.menu_edit;
 
 public class EditItemActivity extends AppCompatActivity {
     private EditText mltEdit;
+    private EditText tDueDate;
+    private Spinner spPriority;
+    private CheckBox cbDone;
+    private EditText mltNotes;
     private ToDoneExtra curItem;
     private EditAction editAction;
 
@@ -22,6 +29,10 @@ public class EditItemActivity extends AppCompatActivity {
         setContentView(R.layout.activity_edit_item);
 
         mltEdit = (EditText) findViewById(R.id.mltEdit);
+        tDueDate = (EditText) findViewById(R.id.tDueDate);
+        spPriority = (Spinner) findViewById(R.id.spPriority);
+        cbDone = (CheckBox) findViewById(R.id.cbDone);
+        mltNotes = (EditText) findViewById(R.id.mltNotes);
 
         // Get name from intent and set multi-line edit
         curItem = (ToDoneExtra) getIntent().getSerializableExtra("task");
@@ -50,6 +61,10 @@ public class EditItemActivity extends AppCompatActivity {
         mltEdit.append(curItem.task.name);
         // mltEdit.setName(curItem.name);
         // mltEdit.setSelection(curItem.name.length());
+        tDueDate.setText(String.format("%1$tm/%1$td/%1$tY", curItem.task.dueDate));
+        spPriority.setSelection(curItem.task.priority);
+        cbDone.setChecked(curItem.task.done);
+        mltNotes.append(curItem.task.notes);
     }
 
     @Override
@@ -63,18 +78,14 @@ public class EditItemActivity extends AppCompatActivity {
         return true;
     }
 
-    public void onClick(View view) {
-        // Prepare data intent and pass back name
-        curItem.task.name = mltEdit.getText().toString();
-        Intent data = new Intent();
-        data.putExtra("task", curItem);
-        setResult(RESULT_OK, data);
-        finish();
-    }
-
     public void onMenuSave(MenuItem item) {
         // Prepare data intent and pass back name
         curItem.task.name = mltEdit.getText().toString();
+        curItem.task.dueDate = new Date(String.valueOf(tDueDate.getText()));
+        curItem.task.priority = spPriority.getSelectedItemPosition();
+        curItem.task.done = cbDone.isChecked();
+        curItem.task.notes = mltNotes.getText().toString();
+
         Intent data = new Intent();
         data.putExtra("task", curItem);
         setResult(RESULT_OK, data);

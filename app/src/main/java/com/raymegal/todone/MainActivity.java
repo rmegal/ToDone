@@ -19,6 +19,7 @@ import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -209,7 +210,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void onMenuAdd(MenuItem item) {
         Intent i = new Intent(MainActivity.this, EditItemActivity.class);
-        ToDoneExtra curItem = new ToDoneExtra(0, new ToDoneTask(""));
+        ToDoneExtra curItem = new ToDoneExtra(0, new ToDoneTask("", Calendar.getInstance().getTime(), 1));
         i.putExtra("task", curItem);
         i.putExtra("requestcode", EditAction.ADD_ACTION);
         startActivityForResult(i, EditAction.ADD_ACTION.getValue());

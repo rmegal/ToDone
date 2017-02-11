@@ -17,6 +17,7 @@ import static com.raymegal.todone.R.id.tvPriority;
  */
 
 public class ToDoneTasksAdapter extends ArrayAdapter<ToDoneTask> {
+    Context context;
     // View Lookup cache
     private static class ViewHolder {
         TextView name;
@@ -25,6 +26,7 @@ public class ToDoneTasksAdapter extends ArrayAdapter<ToDoneTask> {
 
     public ToDoneTasksAdapter(Context context, ArrayList<ToDoneTask> items) {
         super(context, R.layout.item_todone, items);
+        this.context = context;
     }
 
     @NonNull
@@ -49,7 +51,8 @@ public class ToDoneTasksAdapter extends ArrayAdapter<ToDoneTask> {
         // Populate the data from the data object via the viewHolder object
         // into the template view.
         viewHolder.name.setText(task.name);
-        viewHolder.priority.setText(task.priority);
+        String[] priorities = context.getResources().getStringArray(R.array.priority_array);
+        viewHolder.priority.setText(String.valueOf(priorities[task.priority]));
         // Return the completed view to render on screen
         return convertView;
     }

@@ -6,6 +6,7 @@ import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * Created by ray on 1/31/2017.
@@ -21,7 +22,16 @@ public class ToDoneTask extends BaseModel implements Serializable {
     String name;
 
     @Column
-    String priority;
+    int priority;
+
+    @Column
+    Date dueDate;
+
+    @Column
+    Boolean done;
+
+    @Column
+    String notes;
 
     public ToDoneTask() {
     }
@@ -30,8 +40,15 @@ public class ToDoneTask extends BaseModel implements Serializable {
         this.name = name;
     }
 
+    public ToDoneTask(String name, Date dueDate, int priority) {
+        this.name = name;
+        this.dueDate = dueDate;
+        this.priority = priority;
+        this.done = false;
+        this.notes = "";
+    }
+
     public void setName(String name) {
         this.name = name;
     }
-    public void setPriority(String priority) { this.priority = priority; }
 }

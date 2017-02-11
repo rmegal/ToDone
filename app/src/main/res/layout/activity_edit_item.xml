@@ -23,17 +23,90 @@
     <EditText
         android:id="@+id/mltEdit"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/toolbar"
+        android:gravity="top|start"
+        android:inputType="text"
+        android:selectAllOnFocus="false">
+
+        <requestFocus />
+    </EditText>
+
+    <TextView
+        android:id="@+id/tvDueBy"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/mltEdit"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignBaseline="@+id/tDueDate"
+        android:text="@string/due_by_label"
+        />
+
+    <EditText
+        android:id="@+id/tDueDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_toRightOf="@+id/tvDueBy"
+        android:layout_below="@+id/mltEdit"
+        android:layout_marginLeft="@dimen/spinner_margin_left"
+        android:inputType="date" />
+
+    <TextView
+        android:id="@+id/tvPriority"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/priority_label"
+        android:layout_below="@+id/tvDueBy"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignBaseline="@+id/spPriority" />
+
+    <Spinner
+        android:id="@+id/spPriority"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/tDueDate"
+        android:layout_marginLeft="@dimen/spinner_margin_left"
+        android:layout_toRightOf="@+id/tvPriority"
+        android:entries="@array/priority_array" />
+
+    <CheckBox
+        android:id="@+id/cbDone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/done_label"
+        android:layout_below="@+id/spPriority"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <EditText
+        android:id="@+id/mltNotes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentStart="true"
-        android:layout_below="@+id/toolbar"
-        android:ems="10"
         android:gravity="top|start"
+        android:hint="@string/notes_hint"
         android:inputType="textMultiLine"
         android:scrollbars="vertical"
         android:selectAllOnFocus="false"
-        android:layout_alignParentBottom="true" />
+        android:layout_below="@+id/textView" />
+
+    <TextView
+        android:text="@string/notes_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/cbDone"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:id="@+id/textView" />
 
 </RelativeLayout>

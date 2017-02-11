@@ -2,6 +2,16 @@
     <string name="app_name">ToDone</string>
     <string name="add_new_task">Add new task</string>
     <string name="save_label">Save</string>
-    <string name="priority_low">LOW</string>
     <string name="add_task">Add Task</string>
+    <string name="notes_label">Notes</string>
+    <string name="notes_hint">notes</string>
+    <string name="due_by_label">Due By:</string>
+    <string name="priority_label">Priority:</string>
+    <string name="done_label">Done</string>
+
+    <string-array name="priority_array">
+        <item>High</item>
+        <item>Medium</item>
+        <item>Low</item>
+    </string-array>
 </resources>
