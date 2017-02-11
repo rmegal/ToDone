@@ -2,6 +2,7 @@ package com.raymegal.todone;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -14,7 +15,7 @@ import java.util.Date;
 
 import static com.raymegal.todone.R.menu.menu_edit;
 
-public class EditItemActivity extends AppCompatActivity {
+public class EditItemActivity extends AppCompatActivity implements VerifyDialogFragment.OnOkSelectedListener {
     private EditText mltEdit;
     private EditText tDueDate;
     private Spinner spPriority;
@@ -93,14 +94,21 @@ public class EditItemActivity extends AppCompatActivity {
     }
 
     public void onMenuDelete(MenuItem item) {
+        FragmentManager fm = getSupportFragmentManager();
+        VerifyDialogFragment vfyDialog = VerifyDialogFragment.newInstance("Delete Task?", curItem.pos);
+        vfyDialog.show(fm, "verify_alert");
+    }
+
+    public void onMenuCancel(MenuItem item) {
+        finish();
+    }
+
+    @Override
+    public void onOkSelected(int pos) {
         Intent data = new Intent();
         data.putExtra("task", curItem);
         data.putExtra("requestcode", EditAction.DELETE_ACTION);
         setResult(RESULT_OK, data);
-        finish();
-    }
-
-    public void onMenuCancel(MenuItem item) {
         finish();
     }
 }

@@ -3,6 +3,7 @@ package com.raymegal.todone;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -22,7 +23,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements VerifyDialogFragment.OnOkSelectedListener {
     private ArrayList<ToDoneTask> items;
     private ToDoneTasksAdapter itemsAdapter;
     private ListView lvItems;
@@ -119,9 +120,9 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public boolean onItemLongClick(AdapterView<?> adapter,
                                                    View item, int pos, long id) {
-                        items.remove(pos);
-                        itemsAdapter.notifyDataSetChanged();
-                        writeItems();
+                        FragmentManager fm = getSupportFragmentManager();
+                        VerifyDialogFragment vfyDialog = VerifyDialogFragment.newInstance("Delete Task?", pos);
+                        vfyDialog.show(fm, "verify_alert");
                         return true;
                     }
                 }
@@ -134,10 +135,8 @@ public class MainActivity extends AppCompatActivity {
             EditAction editAction = (EditAction) data.getExtras().getSerializable("requestcode");
 
             if (editAction == EditAction.DELETE_ACTION) {
-                ToDoneExtra changedItem = (ToDoneExtra) data.getExtras().getSerializable("task");
-                items.remove(changedItem.pos);
-                itemsAdapter.notifyDataSetChanged();
-                writeItems();
+                ToDoneExtra extra = (ToDoneExtra) data.getExtras().getSerializable("task");
+                deleteTask(extra.pos);
             } else {
                 ToDoneExtra changedItem = (ToDoneExtra) data.getExtras().getSerializable("task");
                 items.set(changedItem.pos, changedItem.task);
@@ -150,6 +149,12 @@ public class MainActivity extends AppCompatActivity {
             itemsAdapter.notifyDataSetChanged();
             writeItems();
         }
+    }
+
+    private void deleteTask(int pos) {
+        items.remove(pos);
+        itemsAdapter.notifyDataSetChanged();
+        writeItems();
     }
 
     /**
@@ -214,5 +219,10 @@ public class MainActivity extends AppCompatActivity {
         i.putExtra("task", curItem);
         i.putExtra("requestcode", EditAction.ADD_ACTION);
         startActivityForResult(i, EditAction.ADD_ACTION.getValue());
+    }
+
+    @Override
+    public void onOkSelected(int pos) {
+        deleteTask(pos);
     }
 }
