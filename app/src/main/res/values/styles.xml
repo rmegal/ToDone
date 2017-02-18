@@ -14,8 +14,6 @@
 
     <style name="page_background">
         <item name="android:background">@drawable/page_background</item>
-        <item name="android:paddingLeft">@dimen/activity_horizontal_padding</item>
-        <item name="android:paddingRight">@dimen/activity_horizontal_padding</item>
     </style>
 
     <style name="text_large">

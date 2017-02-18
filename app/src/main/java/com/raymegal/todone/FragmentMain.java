@@ -1,9 +1,9 @@
 package com.raymegal.todone;
 
-import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -88,7 +88,7 @@ public class FragmentMain extends Fragment {
                 }
         );
 
-        // Set up task *long* click listener to remove current task
+        // Set up task *long* click listener to remove current task\
         lvTasks.setOnItemLongClickListener(
                 new AdapterView.OnItemLongClickListener() {
                     @Override

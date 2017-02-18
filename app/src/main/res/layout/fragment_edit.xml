@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/page_background"
+    android:id="@+id/fragment_edit"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -23,20 +24,20 @@
         android:layout_below="@+id/mltEdit"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_alignBaseline="@+id/tDueDate"
+        android:layout_alignBaseline="@+id/tvDueDate"
         android:text="@string/due_by_label"
         />
 
-    <EditText
-        android:id="@+id/tDueDate"
+    <TextView
+        android:id="@+id/tvDueDate"
+        style="@android:style/Widget.DeviceDefault.Light.Spinner"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_toRightOf="@+id/tvDueBy"
         android:layout_below="@+id/mltEdit"
-        android:layout_marginLeft="@dimen/spinner_margin_left"
-        android:inputType="date" />
+        android:layout_marginLeft="@dimen/spinner_margin_left" />
 
     <TextView
         android:id="@+id/tvPriority"
@@ -54,7 +55,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_below="@+id/tDueDate"
+        android:layout_below="@+id/tvDueDate"
         android:layout_marginLeft="@dimen/spinner_margin_left"
         android:layout_toRightOf="@+id/tvPriority"
         android:entries="@array/priority_array" />

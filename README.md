@@ -4,7 +4,7 @@
 
 Submitted by: **Ray Megal**
 
-Time spent: **12** hours spent in total
+Time spent: **30** hours spent in total
 
 ## User Stories
 
@@ -18,7 +18,7 @@ The following **optional** features are implemented:
 
 * [X] Persist the todo items [into SQLite](http://guides.codepath.com/android/Persisting-Data-to-the-Device#sqlite) instead of a text file
 * [X] Improve style of the todo items in the list [using a custom adapter](http://guides.codepath.com/android/Using-an-ArrayAdapter-with-ListView)
-* [ ] Add support for completion due dates for todo items (and display within listview item)
+* [X] Add support for completion due dates for todo items (and display within listview item)
 * [X] Use a [DialogFragment](http://guides.codepath.com/android/Using-DialogFragment) instead of new Activity for editing items
 * [X] Add support for selecting the priority of each todo item (and display in listview item)
 * [X] Tweak the style improving the UI / UX, play with colors, images or backgrounds
@@ -44,6 +44,7 @@ GIF created with [LiceCap](http://www.cockos.com/licecap/).
 * You can find *very* useful color guidelines [here](https://material.io/guidelines/style/color.html#)
 
 ## Updates
+* 20170218: Implemented date picker for due date and updated adapter to display due date in list view. Ditched left/right margins on background.
 * 20170217: Implemented the use of fragments. It works, but I'm sure the handling of data and events could be better organized.
 * 20170201: Now storing data in database using DBFlow/SQLite. The look/feel/functionality is identical.
 

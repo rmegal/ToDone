@@ -1,10 +1,9 @@
 package com.raymegal.todone;
 
-import android.app.Fragment;
-import android.app.FragmentTransaction;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -24,8 +23,8 @@ import java.util.List;
 import static com.raymegal.todone.EditAction.ADD_ACTION;
 
 public class MainActivity extends AppCompatActivity
-        implements FragmentMain.OnMainItemClickListener, FragmentMain.OnMainItemLongClickListener, FragmentEdit.OnEditSaveListener, VerifyDialogFragment.OnOkSelectedListener {
-    android.app.FragmentManager manager;
+        implements FragmentMain.OnMainItemClickListener, FragmentMain.OnMainItemLongClickListener, FragmentEdit.OnEditSaveListener, VerifyDialogFragment.OnOkSelectedListener, DatePickerFragment.OnDateSetListener  {
+    FragmentManager manager;
     private ArrayList<ToDoneTask> tasks;
     private ToDoneTasksAdapter adapter;
 
@@ -52,7 +51,7 @@ public class MainActivity extends AppCompatActivity
         getSupportActionBar().setDisplayUseLogoEnabled(true);
 
         // set up fragment manager
-        manager = getFragmentManager();
+        manager = getSupportFragmentManager();
 
         /*
          * 1. Create an ArrayList
@@ -93,7 +92,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Fragment fragment = null;
+        FragmentEdit fragment = null;
         String tag = "";
         boolean handled = false;
         int itemId = item.getItemId();
@@ -227,5 +226,11 @@ public class MainActivity extends AppCompatActivity
         adapter.notifyDataSetChanged();
         writeItems();
         manager.popBackStack();
+    }
+
+    @Override
+    public void onDateSet(int year, int month, int day) {
+        FragmentEdit fragment = (FragmentEdit) getSupportFragmentManager().findFragmentByTag("fragEdit");
+        fragment.setDate(year, month, day);
     }
 }

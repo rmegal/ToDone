@@ -1,9 +1,9 @@
 package com.raymegal.todone;
 
-import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -14,7 +14,9 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -38,7 +40,7 @@ public class FragmentEdit extends Fragment {
     private int pos;
 
     private EditText mltEdit;
-    private EditText tDueDate;
+    private TextView tvDueDate;
     private Spinner spPriority;
     private CheckBox cbDone;
     private EditText mltNotes;
@@ -73,13 +75,22 @@ public class FragmentEdit extends Fragment {
         pos = bundle.getInt(POS_KEY);
 
         mltEdit = (EditText) view.findViewById(R.id.mltEdit);
-        tDueDate = (EditText) view.findViewById(R.id.tDueDate);
+        tvDueDate = (TextView) view.findViewById(R.id.tvDueDate);
+        tvDueDate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Calendar date = Calendar.getInstance();
+                date.setTime(task.dueDate);
+                DatePickerFragment fragment = DatePickerFragment.newInstance(date.get(Calendar.YEAR), date.get(Calendar.MONTH), date.get(Calendar.DAY_OF_MONTH));
+                fragment.show(myContext.getSupportFragmentManager(), "datePicker");
+            }
+        });
         spPriority = (Spinner) view.findViewById(R.id.spPriority);
         cbDone = (CheckBox) view.findViewById(R.id.cbDone);
         mltNotes = (EditText) view.findViewById(R.id.mltNotes);
 
         mltEdit.append(task.name);
-        tDueDate.setText(String.format("%1$tm/%1$td/%1$tY", task.dueDate));
+        tvDueDate.setText(String.format("%1$tm/%1$td/%1$tY", task.dueDate));
         spPriority.setSelection(task.priority);
         cbDone.setChecked(task.done);
         mltNotes.append(task.notes);
@@ -103,7 +114,7 @@ public class FragmentEdit extends Fragment {
         switch (itemId) {
             case R.id.miSave:
                 task.name = mltEdit.getText().toString();
-                task.dueDate = new Date(String.valueOf(tDueDate.getText()));
+                task.dueDate = new Date(String.valueOf(tvDueDate.getText()));
                 task.priority = spPriority.getSelectedItemPosition();
                 task.done = cbDone.isChecked();
                 task.notes = mltNotes.getText().toString();
@@ -138,5 +149,14 @@ public class FragmentEdit extends Fragment {
             throw new ClassCastException(context.toString()
                     + " must implement OnEditSaveListener");
         }
+    }
+
+    public void setDate(int year, int month, int day) {
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.YEAR, year);
+        cal.set(Calendar.MONTH, month);
+        cal.set(Calendar.DAY_OF_MONTH, day);
+        task.dueDate = cal.getTime();
+        tvDueDate.setText(String.format("%1$tm/%1$td/%1$tY", task.dueDate));
     }
 }

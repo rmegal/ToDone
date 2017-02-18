@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import static com.raymegal.todone.R.id.tvDueDate;
 import static com.raymegal.todone.R.id.tvPriority;
 
 /**
@@ -23,6 +24,7 @@ public class ToDoneTasksAdapter extends ArrayAdapter<ToDoneTask> {
     private static class ViewHolder {
         TextView name;
         TextView priority;
+        TextView dueByDate;
     }
 
     public ToDoneTasksAdapter(Context context, ArrayList<ToDoneTask> items) {
@@ -44,6 +46,7 @@ public class ToDoneTasksAdapter extends ArrayAdapter<ToDoneTask> {
             convertView = inflater.inflate(R.layout.item_todone, parent, false);
             viewHolder.name = (TextView) convertView.findViewById(R.id.tvName);
             viewHolder.priority = (TextView) convertView.findViewById(tvPriority);
+            viewHolder.dueByDate = (TextView) convertView.findViewById(tvDueDate);
             // Cache the viewHolder object inside the fresh view
             convertView.setTag(viewHolder);
         } else {
@@ -54,6 +57,7 @@ public class ToDoneTasksAdapter extends ArrayAdapter<ToDoneTask> {
         viewHolder.name.setText(task.name);
         String[] priorities = context.getResources().getStringArray(R.array.priority_array);
         viewHolder.priority.setText(String.valueOf(priorities[task.priority]));
+        viewHolder.dueByDate.setText(String.format("%1$tm/%1$td/%1$tY", task.dueDate));
         // Return the completed view to render on screen
         return convertView;
     }
