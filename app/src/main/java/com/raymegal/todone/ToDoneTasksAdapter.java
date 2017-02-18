@@ -18,6 +18,7 @@ import static com.raymegal.todone.R.id.tvPriority;
 
 public class ToDoneTasksAdapter extends ArrayAdapter<ToDoneTask> {
     Context context;
+
     // View Lookup cache
     private static class ViewHolder {
         TextView name;

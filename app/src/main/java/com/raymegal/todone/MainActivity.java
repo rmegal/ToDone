@@ -1,6 +1,7 @@
 package com.raymegal.todone;
 
-import android.content.Intent;
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
@@ -8,9 +9,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ListView;
 
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
@@ -23,10 +21,13 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements VerifyDialogFragment.OnOkSelectedListener {
-    private ArrayList<ToDoneTask> items;
-    private ToDoneTasksAdapter itemsAdapter;
-    private ListView lvItems;
+import static com.raymegal.todone.EditAction.ADD_ACTION;
+
+public class MainActivity extends AppCompatActivity
+        implements FragmentMain.OnMainItemClickListener, FragmentMain.OnMainItemLongClickListener, FragmentEdit.OnEditSaveListener, VerifyDialogFragment.OnOkSelectedListener {
+    android.app.FragmentManager manager;
+    private ArrayList<ToDoneTask> tasks;
+    private ToDoneTasksAdapter adapter;
 
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -50,6 +51,9 @@ public class MainActivity extends AppCompatActivity implements VerifyDialogFragm
         getSupportActionBar().setLogo(R.mipmap.ic_launcher);
         getSupportActionBar().setDisplayUseLogoEnabled(true);
 
+        // set up fragment manager
+        manager = getFragmentManager();
+
         /*
          * 1. Create an ArrayList
          * 2. Create an ArrayAdapter
@@ -62,14 +66,16 @@ public class MainActivity extends AppCompatActivity implements VerifyDialogFragm
          * See: https://docs.google.com/presentation/d/15JnmfmFa0hJOEkBhG_TeymChLzDzpOTJvBlOj29A9fY/edit#slide=id.gf45d6347_3_119
          *
          */
-        lvItems = (ListView) findViewById(R.id.lvTasks);
         readItems();
-        // itemsAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, items);
-        itemsAdapter = new ToDoneTasksAdapter(this, items);
-        lvItems = (ListView) findViewById(R.id.lvTasks);
-        lvItems.setAdapter(itemsAdapter);
+        // adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, tasks);
+        adapter = new ToDoneTasksAdapter(this, tasks);
 
-        setupListViewListeners();
+        // set up main fragment
+        FragmentMain fragment = FragmentMain.newInstance();
+        fragment.setAdapter(adapter);
+        FragmentTransaction transaction = manager.beginTransaction();
+        transaction.replace(R.id.content, fragment, "fragMain");
+        transaction.commit();
 
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -79,81 +85,45 @@ public class MainActivity extends AppCompatActivity implements VerifyDialogFragm
     // Menu icons are inflated just as they were with actionbar
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        // Inflate the menu; this adds tasks to the action bar if it is present.
+        // getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
-    /*
-     * Editing items from list
-     * 1. Create method for setting up the listener (this method)
-     * 2. Invoke listener (i.e. this method) from onCreate
-     * 3. Attach a ClickListener to each ToDoneTask for List View that:
-     *   a. Edits the task
-     *
-     * Removing items from list
-     * 1. Create method for setting up the listener (this method)
-     * 2. Invoke listener (i.e. this method) from onCreate
-     * 3. Attach a LongClickListener to each ToDoneTask for List View that:
-     *   a. Removes that task
-     *   b. Refreshes the adapter
-     */
-    private void setupListViewListeners() {
-        // Set up task click listener to launch EditItemActivity
-        lvItems.setOnItemClickListener(
-                new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> adapter,
-                                            View item, int pos, long id) {
-                        Intent i = new Intent(MainActivity.this, EditItemActivity.class);
-                        ToDoneExtra curItem = new ToDoneExtra(pos, itemsAdapter.getItem(pos));
-                        i.putExtra("task", curItem);
-                        i.putExtra("requestcode", EditAction.EDIT_ACTION);
-                        startActivityForResult(i, EditAction.EDIT_ACTION.getValue());
-                    }
-                }
-        );
-
-        // Set up task *long* click listener to remove current task
-        lvItems.setOnItemLongClickListener(
-                new AdapterView.OnItemLongClickListener() {
-                    @Override
-                    public boolean onItemLongClick(AdapterView<?> adapter,
-                                                   View item, int pos, long id) {
-                        FragmentManager fm = getSupportFragmentManager();
-                        VerifyDialogFragment vfyDialog = VerifyDialogFragment.newInstance("Delete Task?", pos);
-                        vfyDialog.show(fm, "verify_alert");
-                        return true;
-                    }
-                }
-        );
-    }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == RESULT_OK && requestCode == EditAction.EDIT_ACTION.getValue()) {
-            EditAction editAction = (EditAction) data.getExtras().getSerializable("requestcode");
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Fragment fragment = null;
+        String tag = "";
+        boolean handled = false;
+        int itemId = item.getItemId();
 
-            if (editAction == EditAction.DELETE_ACTION) {
-                ToDoneExtra extra = (ToDoneExtra) data.getExtras().getSerializable("task");
-                deleteTask(extra.pos);
-            } else {
-                ToDoneExtra changedItem = (ToDoneExtra) data.getExtras().getSerializable("task");
-                items.set(changedItem.pos, changedItem.task);
-                itemsAdapter.notifyDataSetChanged();
-                writeItems();
-            }
-        } else if (resultCode == RESULT_OK && requestCode == EditAction.ADD_ACTION.getValue()) {
-            ToDoneExtra changedItem = (ToDoneExtra) data.getExtras().getSerializable("task");
-            items.add(changedItem.task);
-            itemsAdapter.notifyDataSetChanged();
-            writeItems();
+        switch (itemId) {
+            case R.id.miAdd:
+                fragment = FragmentEdit.newInstance(new ToDoneTask("", Calendar.getInstance().getTime(), 1), ADD_ACTION, -1);
+                tag = "fragEdit";
+                handled = true;
+                break;
+            case R.id.miCancel:
+                manager.popBackStack();
+                handled = true;
+                break;
+            default:
+                handled = super.onOptionsItemSelected(item);
         }
+
+        if (fragment != null) {
+            FragmentTransaction transaction = manager.beginTransaction();
+            transaction.replace(R.id.content, fragment, tag);
+            transaction.addToBackStack(tag);
+            transaction.commit();
+        }
+        return handled;
     }
 
     private void deleteTask(int pos) {
-        items.remove(pos);
-        itemsAdapter.notifyDataSetChanged();
+        tasks.remove(pos);
+        adapter.notifyDataSetChanged();
         writeItems();
     }
 
@@ -198,9 +168,9 @@ public class MainActivity extends AppCompatActivity implements VerifyDialogFragm
                 .from(ToDoneTask.class)
                 .queryList();
 
-        items = new ArrayList<>();
+        tasks = new ArrayList<>();
         for (ToDoneTask dbItem : dbItems) {
-            items.add(dbItem);
+            tasks.add(dbItem);
         }
     }
 
@@ -208,21 +178,54 @@ public class MainActivity extends AppCompatActivity implements VerifyDialogFragm
         // empty table
         Delete.table(ToDoneTask.class);
 
-        for (ToDoneTask item : items) {
+        for (ToDoneTask item : tasks) {
             item.save();
         }
-    }
-
-    public void onMenuAdd(MenuItem item) {
-        Intent i = new Intent(MainActivity.this, EditItemActivity.class);
-        ToDoneExtra curItem = new ToDoneExtra(0, new ToDoneTask("", Calendar.getInstance().getTime(), 1));
-        i.putExtra("task", curItem);
-        i.putExtra("requestcode", EditAction.ADD_ACTION);
-        startActivityForResult(i, EditAction.ADD_ACTION.getValue());
     }
 
     @Override
     public void onOkSelected(int pos) {
         deleteTask(pos);
+        manager.popBackStack();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (manager.getBackStackEntryCount() > 0) {
+            manager.popBackStack();
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
+    public void onMainItemClick(int pos) {
+        ToDoneTask task = adapter.getItem(pos);
+        FragmentEdit fragment = FragmentEdit.newInstance(task, EditAction.EDIT_ACTION, pos);
+        String tag = "fragEdit";
+        FragmentTransaction transaction = manager.beginTransaction();
+        transaction.replace(R.id.content, fragment, tag);
+        transaction.addToBackStack(tag);
+        transaction.commit();
+    }
+
+    @Override
+    public void onMainItemLongClick(int pos) {
+        FragmentManager fm = getSupportFragmentManager();
+        VerifyDialogFragment vfyDialog = VerifyDialogFragment.newInstance("Delete Task?", pos);
+        vfyDialog.show(fm, "verify_alert");
+    }
+
+    @Override
+    public void onEditSave(ToDoneTask task, int pos) {
+        if (pos > -1) {
+            tasks.set(pos, task);
+        } else {
+            tasks.add(task);
+        }
+
+        adapter.notifyDataSetChanged();
+        writeItems();
+        manager.popBackStack();
     }
 }

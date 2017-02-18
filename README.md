@@ -41,6 +41,7 @@ GIF created with [LiceCap](http://www.cockos.com/licecap/).
 * Storing multi-line items in a TXT file was troublesome since loading a multi-line task would result in multiple tasks being created in the ListView. I changed to storing a serialized version of the underlying ArrayList as JSON to resolve this.
 * I'm working in a Windows 10 environment with Hyper-V enabled so I followed this to dual-boot into an environment that allowed me to use the Genymotion emulator: http://www.hanselman.com/blog/SwitchEasilyBetweenVirtualBoxAndHyperVWithABCDEditBootEntryInWindows81.aspx
 * The [ideavim](https://github.com/JetBrains/ideavim) plugin allowed me to use vim keybindings within Android Studio. Very handy.
+* You can find *very* useful color guidelines [here](https://material.io/guidelines/style/color.html#)
 
 ## Updates
 * 20170201: Now storing data in database using DBFlow/SQLite. The look/feel/functionality is identical.
